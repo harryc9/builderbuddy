@@ -1,0 +1,18 @@
+# Allow public pages
+User-agent: *
+Allow: /
+
+# Block authenticated areas
+Disallow: /app/
+Disallow: /onboarding/
+Disallow: /verify-email
+
+# Block API routes
+Disallow: /api/
+
+# Block unsubscribe confirmation page (no SEO value)
+Disallow: /unsubscribed
+
+# Sitemap
+Sitemap: https://416permits.com/sitemap.xml
+

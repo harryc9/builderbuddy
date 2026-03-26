@@ -1,0 +1,46 @@
+name: Update Cost Stats
+
+on:
+  schedule:
+    # Run daily at 1 AM UTC (after permit ingestion)
+    - cron: '0 1 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Update cost statistics
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: bun scripts/update-cost-stats.ts
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Cost Stats Update Failed',
+              body: `The daily cost statistics update has failed.
+              
+              Please review the workflow logs: ${context.payload.repository.html_url}/actions/runs/${context.runId}
+              
+              The script calculates cost distribution statistics from the last 90 days of permits and stores them in the \`permit_cost_stats\` table.`,
+              labels: ['database', 'maintenance']
+            });
+

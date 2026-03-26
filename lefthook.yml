@@ -1,0 +1,28 @@
+pre-commit:
+  parallel: true
+  commands:
+    typecheck:
+      run: bunx tsc --noEmit
+      fail_text: "TypeScript type checking failed. Fix type errors before committing."
+    lint:
+      glob: "*.{js,ts,tsx}"
+      run: bunx biome lint --diagnostic-level=error {staged_files}
+      fail_text: "Linting failed. Fix the issues before committing."
+      stage_fixed: false
+    format:
+      glob: "*.{js,ts,tsx,json}"
+      run: bunx biome format --write {staged_files}
+      fail_text: "Formatting applied to staged files."
+      stage_fixed: true
+    # tests:
+    #   run: bun test:unit:core
+    #   fail_text: "Core unit tests failed. Fix the tests before committing."
+
+pre-push:
+  commands:
+    typecheck:
+      run: bunx tsc --noEmit
+      fail_text: "TypeScript type checking failed. Fix type errors before pushing."
+    tests:
+      run: bun run test
+      fail_text: "Tests failed. Fix the failing tests before pushing."

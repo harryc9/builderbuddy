@@ -1,0 +1,195 @@
+name: Database Health Check
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+    inputs:
+      check_type:
+        description: 'Type of check to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - indexes
+          - statistics
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Check Index Usage
+        if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'indexes'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Index Usage Statistics"
+          psql $DATABASE_URL -c "
+            SELECT 
+              indexname,
+              idx_scan as scans,
+              idx_tup_read as tuples_read,
+              pg_size_pretty(pg_relation_size(indexrelid)) as size
+            FROM pg_stat_user_indexes
+            WHERE schemaname = 'public' 
+              AND tablename = 'permits'
+            ORDER BY idx_scan ASC, pg_relation_size(indexrelid) DESC;
+          "
+          echo "::endgroup::"
+
+      - name: Check for Unused Indexes
+        if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'indexes'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Potentially Unused Indexes"
+          psql $DATABASE_URL -t -c "
+            SELECT 
+              '⚠️ ' || indexname || ' - ' || idx_scan || ' scans, ' || pg_size_pretty(pg_relation_size(indexrelid)) as warning
+            FROM pg_stat_user_indexes
+            WHERE schemaname = 'public' 
+              AND tablename = 'permits'
+              AND idx_scan < 50
+              AND pg_relation_size(indexrelid) > 1000000  -- > 1MB
+            ORDER BY pg_relation_size(indexrelid) DESC;
+          " | tee unused_indexes.txt
+          
+          if [ -s unused_indexes.txt ]; then
+            echo "::warning::Found unused indexes. Consider removing them."
+            cat unused_indexes.txt
+          else
+            echo "✅ No unused indexes found"
+          fi
+          echo "::endgroup::"
+
+      - name: Check Sequential Scans
+        if: github.event.inputs.check_type == 'all'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Sequential Scan Statistics"
+          psql $DATABASE_URL -c "
+            SELECT 
+              tablename,
+              seq_scan as sequential_scans,
+              seq_tup_read as rows_read_seq,
+              idx_scan as index_scans,
+              ROUND(100.0 * seq_scan / NULLIF(seq_scan + idx_scan, 0), 2) as seq_scan_pct
+            FROM pg_stat_user_tables
+            WHERE schemaname = 'public' 
+              AND tablename IN ('permits', 'permit_job_roles', 'job_role_definitions')
+            ORDER BY seq_scan DESC;
+          "
+          echo "::endgroup::"
+
+      - name: Check Statistics Freshness
+        if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'statistics'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Statistics Age"
+          psql $DATABASE_URL -c "
+            SELECT 
+              tablename,
+              last_analyze,
+              last_autoanalyze,
+              CASE 
+                WHEN last_analyze IS NULL AND last_autoanalyze IS NULL THEN '❌ Never analyzed'
+                WHEN COALESCE(last_analyze, last_autoanalyze) < NOW() - INTERVAL '7 days' THEN '⚠️ Stale (>7 days)'
+                ELSE '✅ Fresh'
+              END as status
+            FROM pg_stat_user_tables
+            WHERE schemaname = 'public' 
+              AND tablename IN ('permits', 'permit_job_roles', 'job_role_definitions')
+            ORDER BY COALESCE(last_analyze, last_autoanalyze) ASC NULLS FIRST;
+          "
+          echo "::endgroup::"
+
+      - name: Check Index Bloat
+        if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'indexes'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Index Sizes (Potential Bloat)"
+          psql $DATABASE_URL -c "
+            SELECT 
+              indexname,
+              pg_size_pretty(pg_relation_size(indexrelid)) as size,
+              idx_scan as scans,
+              pg_size_pretty(pg_relation_size(indexrelid)::bigint / NULLIF(idx_scan, 0)) as cost_per_scan
+            FROM pg_stat_user_indexes
+            WHERE schemaname = 'public' 
+              AND tablename = 'permits'
+              AND pg_relation_size(indexrelid) > 10000000  -- > 10MB
+            ORDER BY pg_relation_size(indexrelid) DESC;
+          "
+          echo "::endgroup::"
+
+      - name: Performance Summary
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Performance Summary"
+          echo "📊 Database Health Report - $(date)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          # Count total indexes
+          TOTAL_INDEXES=$(psql $DATABASE_URL -t -c "
+            SELECT COUNT(*) FROM pg_stat_user_indexes 
+            WHERE schemaname = 'public' AND tablename = 'permits';
+          " | tr -d ' ')
+          echo "📑 Total Indexes: $TOTAL_INDEXES"
+          
+          # Count unused indexes
+          UNUSED_INDEXES=$(psql $DATABASE_URL -t -c "
+            SELECT COUNT(*) FROM pg_stat_user_indexes 
+            WHERE schemaname = 'public' 
+              AND tablename = 'permits' 
+              AND idx_scan < 50;
+          " | tr -d ' ')
+          echo "⚠️  Unused Indexes: $UNUSED_INDEXES"
+          
+          # Total index size
+          TOTAL_SIZE=$(psql $DATABASE_URL -t -c "
+            SELECT pg_size_pretty(SUM(pg_relation_size(indexrelid)))
+            FROM pg_stat_user_indexes 
+            WHERE schemaname = 'public' AND tablename = 'permits';
+          " | tr -d ' ')
+          echo "💾 Total Index Size: $TOTAL_SIZE"
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "::endgroup::"
+
+      - name: Create Issue if Problems Found
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Database Health Check Failed',
+              body: `The weekly database health check has detected issues.
+              
+              Please review the workflow logs: ${context.payload.repository.html_url}/actions/runs/${context.runId}
+              
+              Common issues to check:
+              - Unused indexes consuming space
+              - Statistics need updating (run ANALYZE)
+              - High sequential scan rates (need new index)
+              
+              See \`docs/database-maintenance.md\` for troubleshooting steps.`,
+              labels: ['database', 'performance', 'maintenance']
+            });
+
