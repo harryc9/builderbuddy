@@ -84,7 +84,7 @@ export function Landing() {
           <div className="flex items-center gap-2.5">
             <Logo className="h-5 w-auto text-primary" />
             <span className="font-semibold text-lg text-gray-900 tracking-tight">
-              BuilderBuddy
+              Grout
             </span>
           </div>
           <div className="flex items-center gap-6">
@@ -178,10 +178,10 @@ export function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Logo className="h-4 w-auto text-gray-400" />
-            <span className="font-medium text-sm text-gray-400">BuilderBuddy</span>
+            <span className="font-medium text-sm text-gray-400">Grout</span>
           </div>
           <p className="text-sm text-gray-300">
-            &copy; {new Date().getFullYear()} BuilderBuddy
+            &copy; {new Date().getFullYear()} Grout
           </p>
         </div>
       </footer>

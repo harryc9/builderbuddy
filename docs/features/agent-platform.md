@@ -1,4 +1,4 @@
-# BuilderBuddy Agent Platform
+# Grout Agent Platform
 
 An AI-powered voice agent platform for construction SMBs. Voice is the wedge; workflow automation is the product.
 
@@ -19,9 +19,9 @@ The pain is acute: these businesses depend on inbound calls for revenue, but the
 
 ## Value Proposition
 
-BuilderBuddy is an AI agent that **answers calls, qualifies leads, and takes action** — not just talks.
+Grout is an AI agent that **answers calls, qualifies leads, and takes action** — not just talks.
 
-The critical distinction: most voice AI products stop at conversation. BuilderBuddy executes downstream workflows:
+The critical distinction: most voice AI products stop at conversation. Grout executes downstream workflows:
 
 - Captures lead information into a structured record
 - Books estimate appointments on the contractor's calendar
@@ -58,7 +58,7 @@ Common traits:
 **Trigger:** Contractor doesn't answer an inbound call.
 
 **Flow:**
-1. Call is forwarded to BuilderBuddy after X rings or when busy
+1. Call is forwarded to Grout after X rings or when busy
 2. Agent answers with the contractor's business greeting
 3. Agent identifies the caller's need (service type, urgency, location)
 4. Agent collects contact info (name, phone, email, address)
@@ -103,7 +103,7 @@ The real value — and the moat — is the **workflow automation behind the voic
 - CRM-like record keeping
 - Business rules (after-hours behavior, service area filtering, escalation)
 
-Competitors who stop at "AI receptionist" are building a feature. BuilderBuddy is building the **operating system for contractor lead management**, with voice as the primary interface.
+Competitors who stop at "AI receptionist" are building a feature. Grout is building the **operating system for contractor lead management**, with voice as the primary interface.
 
 ## Pricing Direction
 
@@ -125,7 +125,7 @@ The goal is 80–90% of customer variation handled by configuration, not custom 
 
 ## Core Architecture: 4-Layer System
 
-The system separates concerns into four distinct layers. This is the architectural decision that determines whether BuilderBuddy becomes a scalable product or a custom services business.
+The system separates concerns into four distinct layers. This is the architectural decision that determines whether Grout becomes a scalable product or a custom services business.
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -270,7 +270,7 @@ Every adapter receives a standardized input and returns a standardized result (s
 - Handling vendor-specific errors
 
 **Initial adapters for v1:**
-- **Internal DB adapter** — stores leads/appointments in BuilderBuddy's own database (default for all customers)
+- **Internal DB adapter** — stores leads/appointments in Grout's own database (default for all customers)
 - **Google Calendar adapter** — reads/writes calendar events for availability and booking
 - **Twilio SMS adapter** — sends SMS notifications
 - **Webhook adapter** — generic HTTP webhook for customers with custom systems
@@ -354,7 +354,7 @@ Vapi is the voice interface layer. It should be the **thinnest possible layer** 
 
 **Vapi integration model:**
 - Vapi manages the phone number and call routing
-- Vapi's server URL points to a BuilderBuddy API endpoint
+- Vapi's server URL points to a Grout API endpoint
 - On each user turn, Vapi sends the transcribed text to the agent
 - The agent processes the turn (via the 4-layer stack) and returns a text response
 - Vapi converts the response to speech and plays it back
@@ -555,7 +555,7 @@ Onboarding a new customer should follow this sequence:
 **Step 4: Connect adapters**
 - Calendar system (Google Calendar, ServiceTitan, Jobber, etc.)
 - SMS provider (Twilio, or via their existing system)
-- CRM/lead storage (BuilderBuddy internal, or push to their system)
+- CRM/lead storage (Grout internal, or push to their system)
 
 **Step 5: Test in simulation**
 - Run standardized test scenarios before going live
@@ -659,7 +659,7 @@ Build the adapter abstraction and initial implementations.
 - Credential management (per-customer adapter auth)
 
 **First adapters:**
-- Internal DB adapter (default — stores everything in BuilderBuddy's own tables)
+- Internal DB adapter (default — stores everything in Grout's own tables)
 - Google Calendar adapter (OAuth2, read availability, create events)
 - Twilio SMS adapter (send SMS, track delivery)
 - Webhook adapter (generic HTTP POST to customer endpoint)

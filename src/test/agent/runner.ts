@@ -5,7 +5,7 @@
  * persona that generates customer responses.
  *
  * Tool calls are detected from the Vapi response payload regardless of
- * whether the webhook (serverUrl) is reachable. Set BUILDERBUDDY_TUNNEL_URL
+ * whether the webhook (serverUrl) is reachable. Set GROUT_TUNNEL_URL
  * if you need tool execution results; otherwise tool invocations are still
  * captured for assertion.
  */
@@ -30,7 +30,7 @@ function getVapiKey(): string {
 }
 
 function getServerUrl(): string | undefined {
-  const tunnel = process.env.BUILDERBUDDY_TUNNEL_URL
+  const tunnel = process.env.GROUT_TUNNEL_URL
   if (!tunnel) return undefined
   const url = new URL(tunnel)
   return `${url.origin}/api/vapi`

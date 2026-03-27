@@ -289,7 +289,7 @@ function DemoSummary({
         Demo complete
       </p>
       <p className="text-xs text-gray-400">
-        In {durationStr}, BuilderBuddy{' '}
+        In {durationStr}, Grout{' '}
         {actionCount > 0
           ? parts.join(', ')
           : 'handled the conversation'}

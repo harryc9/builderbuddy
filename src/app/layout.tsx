@@ -18,8 +18,8 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: 'BuilderBuddy | AI Phone Agent for Contractors',
-    template: '%s | BuilderBuddy',
+    default: 'Grout | AI Phone Agent for Contractors',
+    template: '%s | Grout',
   },
   description:
     'AI-powered phone agent that answers calls, collects quotes, and books appointments for construction contractors. 24/7 coverage, construction-fluent.',
@@ -31,15 +31,15 @@ export const metadata: Metadata = {
     'missed call recovery',
     'construction automation',
   ],
-  authors: [{ name: 'BuilderBuddy' }],
-  creator: 'BuilderBuddy',
+  authors: [{ name: 'Grout' }],
+  creator: 'Grout',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'BuilderBuddy | AI Phone Agent for Contractors',
+    title: 'Grout | AI Phone Agent for Contractors',
     description:
       'AI-powered phone agent that answers calls, collects quotes, and books appointments for construction contractors.',
-    siteName: 'BuilderBuddy',
+    siteName: 'Grout',
   },
 }
 

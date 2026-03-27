@@ -1,4 +1,4 @@
-# BuilderBuddy
+# Grout
 
 AI phone agent for construction contractors. Never miss a call again.
 

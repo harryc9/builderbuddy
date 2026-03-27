@@ -15,7 +15,7 @@ export function buildTransientAssistant(business: ScrapedBusiness) {
   const spokenName = business.business_name_pronunciation || business.business_name
 
   return {
-    name: 'BuilderBuddy Demo',
+    name: 'Grout Demo',
     model: {
       provider: 'openai' as const,
       // TODO: use the correct model gpt-5.2-chat-latest

@@ -1,5 +1,5 @@
 /**
- * BuilderBuddy voice wave logo mark.
+ * Grout voice wave logo mark.
  * 3 rounded bars — two vertical, last one tilted inward for character.
  */
 export function Logo({ className }: { className?: string }) {
