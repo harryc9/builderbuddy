@@ -1,21 +1,26 @@
+import { AuthProvider } from '@/context/auth-provider'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { DM_Sans, Lora } from 'next/font/google'
+import { Toaster } from 'sonner'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
   subsets: ['latin'],
+  weight: ['400', '500', '700'],
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const lora = Lora({
+  variable: '--font-lora',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
 })
 
 export const metadata: Metadata = {
   title: {
-    default: 'BuilderBuddy | AI Phone Agent for Contractors',
-    template: '%s | BuilderBuddy',
+    default: 'Grout | AI Phone Agent for Contractors',
+    template: '%s | Grout',
   },
   description:
     'AI-powered phone agent that answers calls, collects quotes, and books appointments for construction contractors. 24/7 coverage, construction-fluent.',
@@ -27,15 +32,15 @@ export const metadata: Metadata = {
     'missed call recovery',
     'construction automation',
   ],
-  authors: [{ name: 'BuilderBuddy' }],
-  creator: 'BuilderBuddy',
+  authors: [{ name: 'Grout' }],
+  creator: 'Grout',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'BuilderBuddy | AI Phone Agent for Contractors',
+    title: 'Grout | AI Phone Agent for Contractors',
     description:
       'AI-powered phone agent that answers calls, collects quotes, and books appointments for construction contractors.',
-    siteName: 'BuilderBuddy',
+    siteName: 'Grout',
   },
 }
 
@@ -47,9 +52,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${dmSans.variable} ${lora.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+          <Toaster position="top-center" />
+        </AuthProvider>
       </body>
     </html>
   )

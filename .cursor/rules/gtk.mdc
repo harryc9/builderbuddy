@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- When troubleshooting, always try to find the root cause. don't take shortcuts or try to patch with hacky solutions
+- Always assume that the app server is running. DO NOT run scripts that would start the server
+- The Next.js middleware file is `src/proxy.ts` (not the standard `middleware.ts`). When adding new public API routes that must be accessible without auth, add them to the exclusion list in the `config.matcher` at the bottom of that file.
+- Our app runs on https://localhost:4001
+- Supabase DDL: apply with Supabase MCP `apply_migration`; do not add repo files under `supabase/migrations/` unless the user asks for a tracked migration (see `.cursor/rules/supabase-schema-mcp.mdc`). After schema changes, run **`bun run update-types`**—do not use MCP to generate types.
+
