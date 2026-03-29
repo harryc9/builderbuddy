@@ -135,7 +135,7 @@ export function DemoPanel() {
                 <Phone className="h-5 w-5 text-gray-400" />
               </div>
               <p className="text-sm text-gray-500">
-                Paste your URL to talk to your new AI receptionist
+                Paste your URL to talk to your AI receptionist
               </p>
             </div>
             <UrlInput

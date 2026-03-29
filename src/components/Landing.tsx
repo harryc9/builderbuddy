@@ -1,6 +1,7 @@
 'use client'
 
-import { DateTime } from 'luxon'
+import { DemoPanel } from '@/components/demo/demo-panel'
+import { Logo } from '@/components/icons/logo'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -17,14 +18,13 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { DemoPanel } from '@/components/demo/demo-panel'
 import { Separator } from '@/components/ui/separator'
-import { Logo } from '@/components/icons/logo'
+import { Textarea } from '@/components/ui/textarea'
 import {
   ArrowRight,
   Check,
 } from 'lucide-react'
+import { DateTime } from 'luxon'
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
@@ -225,9 +225,6 @@ export function Landing() {
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             <div className="space-y-10">
               <div className="space-y-6">
-                <p className="text-sm text-gray-400 uppercase tracking-widest font-medium">
-                  Built for construction
-                </p>
                 <h1 className="font-serif font-semibold text-5xl sm:text-6xl lg:text-7xl leading-[1.05] text-gray-900">
                   Never miss
                   <br />
